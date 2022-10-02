@@ -1,0 +1,569 @@
+openapi: "3.0.2"
+
+info:
+  title: TODO APP API DOCUMENT
+  description: Using NodeJS, Express, Mongodb and other lib
+  version: "1.0.0"
+  contact:
+    name: Nguyen Van Hai
+    url: https://www.facebook.com/me/
+    email: hainguyen.developer123@gmail.com
+  license:
+    name: Hai Nguyen Dev - Github
+    url: https://github.com/haikevyl1998
+
+servers:
+  - url: http://localhost:8000/api
+
+components:
+  schemas:
+    Code:
+      type: object
+      properties:
+        code:
+          type: string
+    PaginationInfo:
+      type: object
+      properties:
+        page:
+          type: number
+        pageSize:
+          type: number
+        totalPage:
+          type: number
+    Group:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        totalTask:
+          type: number
+        priority:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        deletedAt:
+          type: string
+    GroupTask:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        totalTask:
+          type: number
+        priority:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        deletedAt:
+          type: string
+        tasks:
+          type: array
+          items:
+            properties:
+              id:
+                type: string
+              groupId:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              status:
+                type: string
+              priority:
+                type: string
+              createdAt:
+                type: string
+              updatedAt:
+                type: string
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        username:
+          type: string
+        role:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Code"
+          example:
+            error: BAD_REQUEST
+            code: BODY_INVALID
+    SuccessRequest:
+      description: Success Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Code"
+          example:
+            code: SUCCESS
+    Created:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Code"
+          example:
+            code: CREATED
+    Deleted:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Code"
+          example:
+            code: DELETED
+    NotFound:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Code"
+          example:
+            code: NOT_FOUND
+    Unauthorized:
+      description: Unauthorized
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Code"
+          example:
+            code: FORBIDDEN
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+paths:
+  /register:
+    post:
+      tags:
+        - Auth
+      summary: register new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - name
+                - username
+                - password
+            example:
+              name: Hai Nguyen
+              username: admin
+              password: hn123123
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessRequest"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          description: register failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Code"
+              example:
+                code: USERNAME_ALREADY_TAKEN
+  /login:
+    post:
+      tags:
+        - Auth
+      summary: login in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+            example:
+              username: admin
+              password: hn123123
+      responses:
+        "200":
+          description: login Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: "#/components/schemas/user"
+                      token:
+                        type: string
+              example:
+                code: SUCCESS
+                user:
+                  id: 1
+                  name: Hai Nguyen
+                  username: admin
+                  role: consumer
+                  deletedAt: null
+                  createdAt: "2022-10-01T17:52:53.068Z"
+                  updatedAt: "2022-10-01T17:52:53.068Z"
+
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIYWkgTmd1eWVuIiwic3ViIjoxLCJpYXQiOjE2NjQ2NTAzNjM2Njl9.tysiBbYmO5rZLLXwiDVGIq9-Terrl5VAtVpYsqO__Ow
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          description: username or password incorrect
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Code"
+              example:
+                code: USERNAME_OR_PASSWORD_INCORRECT
+  /me:
+    get:
+      tags:
+        - Auth
+      summary: get my profile
+      responses:
+        "200":
+          description: login Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  user:
+                    $ref: "#/components/schemas/user"
+                example:
+                  code: SUCCESS
+                  user:
+                    id: 1
+                    name: Hai Nguyen
+                    username: admin
+                    role: consumer
+                    deletedAt: null
+                    createdAt: "2022-10-01T17:52:53.068Z"
+                    updatedAt: "2022-10-01T17:52:53.068Z"
+        "401":
+          description: Unauthorized
+  /logout:
+    post:
+      tags:
+        - Auth
+      summary: /logout
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /groups:
+    get:
+      tags:
+        - Task Group
+      summary: get all group for user
+      parameters:
+        - in: query
+          name: priority
+          schema:
+            type: string
+            enum:
+              - HIGH
+              - MEDIUM
+              - LOW
+        - in: query
+          name: totalTask
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - in: query
+          name: createdAt
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        "200":
+          description: group task
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Group"
+                  paginationInfo:
+                    $ref: "#/components/schemas/PaginationInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags:
+        - Task Group
+      summary: create new group
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                priority:
+                  type: string
+                  enum:
+                    - HIGH
+                    - MEDIUM
+                    - LOW
+              required:
+                - name
+              example:
+                name: group 1
+                description: description group 1
+                priority: LOW
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    patch:
+      tags:
+        - Task Group
+      summary: change priority group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      priority:
+                        type: string
+                        enum:
+                          - HIGH
+                          - MEDIUM
+                          - LOW
+              required:
+                - groups
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /groups/{id}:
+    get:
+      tags:
+        - Task Group
+      summary: detail group
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: group detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupTask"
+
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    patch:
+      tags:
+        - Task Group
+      summary: update group
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                priority:
+                  type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    delete:
+      tags:
+        - Task Group
+      summary: delete group
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        "204":
+          $ref: "#/components/responses/Deleted"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /groups/remove:
+    post:
+      tags:
+        - Task Group
+      summary: move group task to trash
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groups:
+                  type: array
+                  items:
+                    type: number
+              required:
+                - groups
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /groups/restore:
+    post:
+      tags:
+        - Task Group
+      summary: restore group task to trash
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groups:
+                  type: array
+                  items:
+                    type: number
+              required:
+                - groups
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /groups/destroy:
+    post:
+      tags:
+        - Task Group
+      summary: delete group task from trash
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groups:
+                  type: array
+                  items:
+                    type: number
+              required:
+                - groups
+      responses:
+        "204":
+          $ref: "#/components/responses/Deleted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
